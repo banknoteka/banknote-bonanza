@@ -1,6 +1,7 @@
 import type { Note } from "@/lib/catalog";
 import { toggleStatus, updateItem, type Item } from "@/lib/collection";
 import { NoteImage } from "./NoteImage";
+import { toggleFavNote, useUserData } from "@/lib/userdata";
 
 const Row = ({ k, v }: { k: string; v?: string }) =>
   v ? (
@@ -17,12 +18,17 @@ export function DetailPanel({
   item,
   currency,
   onZoom,
+  onEdit,
+  onExtra,
 }: {
+  onEdit: () => void;
+  onExtra: () => void;
   note: Note | null;
   item?: Item | undefined;
   currency: string;
   onZoom: (side: "front" | "back") => void;
 }) {
+  const ud = useUserData();
   if (!note)
     return (
       <div className="panel grid h-full place-items-center p-6 text-center text-sm text-muted-foreground">
@@ -46,8 +52,26 @@ export function DetailPanel({
             {note.nom} {note.cur}
           </h2>
         </div>
-        <button className="btn btn-brass shrink-0" onClick={() => onZoom("front")}>Powiększ</button>
+        <div className="flex shrink-0 gap-1.5">
+          <button
+            className={`btn size-9 justify-center text-base ${ud.favNotes[note.key] ? "btn-brass" : ""}`}
+            title="Dodaj do ulubionych"
+            onClick={() => toggleFavNote(note.key)}
+          >{ud.favNotes[note.key] ? "★" : "☆"}</button>
+          <button className="btn btn-brass" onClick={() => onZoom("front")}>Powiększ</button>
+        </div>
       </div>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        <button className="btn justify-center" onClick={onEdit}>✎ Edytuj dane i zdjęcia</button>
+        <button className={`btn justify-center ${ud.extra[note.key] ? "btn-brass" : ""}`} onClick={onExtra}>
+          {ud.extra[note.key] ? "Opis dodatkowy ●" : "+ Opis dodatkowy"}
+        </button>
+      </div>
+      {ud.extra[note.key] && (
+        <button onClick={onExtra} className="mt-2 line-clamp-3 rounded-lg border border-brass/25 bg-brass/5 p-2.5 text-left text-[12.5px] text-cream/85 hover:border-brass/50">
+          {ud.extra[note.key]}
+        </button>
+      )}
 
       <dl className="mt-2 text-[13px]">
         <Row k="Data" v={note.date} />

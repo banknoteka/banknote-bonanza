@@ -1,7 +1,7 @@
 # Roadmap
-- [x] Propozycje wyglądu — wybrano: espresso + mosiądz (dom aukcyjny)
-- [ ] Zbudować aplikację: bez dużego nagłówka/tekstów, maks. miejsca na spis (kraj, Pick, nominał, rok, emitent), podgląd awers + rewers jednocześnie z powiększeniem, strzałki w liście i w galerii
-- [ ] Kolekcje, posiadam/poszukuję, ceny, notatki, podsumowanie, import/eksport
-- [ ] Zdjęcia z folderu images/<kraj> na dysku
-- [ ] Spakować jako program Windows (.exe, offline)
-- [ ] (później) Udostępnianie list kolekcji online (bez zdjęć)
+- [x] Propozycje wyglądu — wybrano: espresso + mosiądz
+- [x] Aplikacja: spis, podgląd awers+rewers, powiększenie, strzałki w liście i galerii
+- [x] Kolekcje, posiadam/poszukuję, ceny, notatki, podsumowanie, import/eksport
+- [x] Zdjęcia z folderu images/<kraj>
+- [x] Program Windows (.exe) w ZIP
+- [ ] (później) Udostępnianie list kolekcji online (bez zdjęć) — czeka na decyzję użytkownika

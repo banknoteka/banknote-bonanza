@@ -144,8 +144,9 @@
   border: 1px solid var(--line);
   background: var(--ink-2);
   padding: 0.4rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--cream);
   transition: border-color 0.2s, background 0.2s;
   &:hover {

@@ -17,6 +17,7 @@ export type Note = {
   key: string;
   hay: string;
   nomNum: number;
+  edited?: boolean;
 };
 
 export type Catalog = { countries: { name: string; folder: string; count: number }[]; notes: Note[] };

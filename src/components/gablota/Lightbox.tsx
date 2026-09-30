@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { Note } from "@/lib/catalog";
-import { useImage } from "@/lib/images";
+import { useNoteImage } from "@/lib/images";
 
 type Side = "front" | "back" | "both";
 
 function Zoomable({ note, side, zoom, pan }: { note: Note; side: "front" | "back"; zoom: number; pan: { x: number; y: number } }) {
-  const url = useImage(note.folder, side === "front" ? note.imgFront : note.imgBack);
+  const url = useNoteImage(note, side);
   return (
-    <div className="relative aspect-[2/1] w-full overflow-hidden rounded-xl ring-1 ring-brass/40 guilloche">
+    <div className="relative aspect-[2/1] w-full max-h-full overflow-hidden rounded-xl ring-1 ring-brass/40 guilloche">
       <div
         className="absolute inset-0 grid place-items-center transition-transform duration-150"
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
@@ -109,12 +109,12 @@ export function Lightbox({
       >
         <button className="btn absolute left-5 top-1/2 size-11 -translate-y-1/2 justify-center text-lg" onClick={onPrev} aria-label="Poprzedni">←</button>
         {side === "both" ? (
-          <div className="grid w-full max-w-[1400px] grid-cols-2 gap-6">
+          <div className="grid w-full grid-cols-2 gap-6" style={{ maxWidth: "min(1800px, calc((100vh - 190px) * 4 + 24px))" }}>
             <Zoomable note={note} side="front" zoom={zoom} pan={pan} />
             <Zoomable note={note} side="back" zoom={zoom} pan={pan} />
           </div>
         ) : (
-          <div className="w-full max-w-[1400px]">
+          <div className="w-full" style={{ maxWidth: "min(1800px, calc((100vh - 190px) * 2))" }}>
             <Zoomable note={note} side={side} zoom={zoom} pan={pan} />
           </div>
         )}

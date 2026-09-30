@@ -145,3 +145,69 @@ export function useImage(folder: string, name?: string) {
 }
 
 export const imageVersion = () => version;
+
+// --- Custom images uploaded by the user (stored in IndexedDB, keyed by note key + side)
+const customCache = new Map<string, Promise<string | null>>();
+const customSubs = new Set<() => void>();
+let customVer = 0;
+const ck = (key: string, side: string) => `img:${key}:${side}`;
+
+export function getCustomImage(key: string, side: "front" | "back") {
+  const k = ck(key, side);
+  let p = customCache.get(k);
+  if (!p) {
+    p = typeof indexedDB === "undefined"
+      ? Promise.resolve(null)
+      : idb<Blob | undefined>("readonly", (s) => s.get(k)).then((b) => (b ? URL.createObjectURL(b) : null), () => null);
+    customCache.set(k, p);
+  }
+  return p;
+}
+
+export async function setCustomImage(key: string, side: "front" | "back", blob: Blob | null) {
+  const k = ck(key, side);
+  if (blob) await idb("readwrite", (s) => s.put(blob, k));
+  else await idb("readwrite", (s) => s.delete(k));
+  customCache.delete(k);
+  customVer++;
+  customSubs.forEach((f) => f());
+}
+
+/** All custom images as { key: Blob } — used for backups. */
+export async function allCustomImages(): Promise<Record<string, Blob>> {
+  const keys = (await idb("readonly", (s) => s.getAllKeys())) as string[];
+  const out: Record<string, Blob> = {};
+  for (const k of keys) if (typeof k === "string" && k.startsWith("img:")) out[k] = (await idb("readonly", (s) => s.get(k))) as Blob;
+  return out;
+}
+export async function putRawImage(k: string, b: Blob) {
+  await idb("readwrite", (s) => s.put(b, k));
+  customCache.delete(k);
+  customVer++;
+  customSubs.forEach((f) => f());
+}
+
+const useCustomVer = () =>
+  useSyncExternalStore(
+    (f) => (customSubs.add(f), () => customSubs.delete(f)),
+    () => customVer,
+    () => customVer,
+  );
+
+export function useNoteImage(note: { key: string; folder: string; imgFront?: string | undefined; imgBack?: string | undefined }, side: "front" | "back") {
+  const src = useImageSource();
+  const ver = useCustomVer();
+  const name = side === "front" ? note.imgFront : note.imgBack;
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    setUrl(null);
+    getCustomImage(note.key, side)
+      .then((u) => u ?? getImageUrl(note.folder, name))
+      .then((u) => alive && setUrl(u));
+    return () => {
+      alive = false;
+    };
+  }, [note.key, note.folder, name, side, src, ver]);
+  return url;
+}

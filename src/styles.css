@@ -42,8 +42,8 @@
   --color-owned: var(--owned);
   --color-wanted: var(--wanted);
   --font-display: "Cormorant Garamond", Georgia, serif;
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Manrope Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Manrope Variable", "Segoe UI", system-ui, sans-serif;
 }
 
 :root {
@@ -92,6 +92,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
   }
   ::selection {
@@ -130,7 +131,8 @@
   font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.12em;
+  font-weight: 600;
   color: var(--color-muted-foreground);
 }
 
@@ -142,8 +144,9 @@
   border: 1px solid var(--line);
   background: var(--ink-2);
   padding: 0.4rem 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
   color: var(--cream);
   transition: border-color 0.2s, background 0.2s;
   &:hover {

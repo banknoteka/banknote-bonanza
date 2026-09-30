@@ -1,5 +1,5 @@
 import type { Note } from "@/lib/catalog";
-import { useImage } from "@/lib/images";
+import { useNoteImage } from "@/lib/images";
 import { cn } from "@/lib/utils";
 
 export function NoteImage({
@@ -15,8 +15,7 @@ export function NoteImage({
   label?: boolean;
   onClick?: () => void;
 }) {
-  const name = side === "front" ? note.imgFront : note.imgBack;
-  const url = useImage(note.folder, name);
+  const url = useNoteImage(note, side);
   return (
     <div
       onClick={onClick}

@@ -23,6 +23,11 @@ import { NoteTable, type SortKey } from "@/components/gablota/NoteTable";
 import { NoteGallery } from "@/components/gablota/NoteGallery";
 import { DetailPanel } from "@/components/gablota/DetailPanel";
 import { Lightbox } from "@/components/gablota/Lightbox";
+import { EditDialog, ExtraDialog } from "@/components/gablota/Dialogs";
+import { applyUserData, initUserData, useUserData } from "@/lib/userdata";
+import "@fontsource-variable/manrope";
+import "@fontsource/cormorant-garamond/500.css";
+import "@fontsource/cormorant-garamond/600.css";
 
 
 type StatusFilter = "all" | "owned" | "wanted" | "missing";
@@ -42,6 +47,8 @@ export function App() {
   const [lightbox, setLightbox] = useState<"front" | "back" | null>(null);
   const [cols, setCols] = useState(3);
   const [menu, setMenu] = useState<string | null>(null);
+  const [dlg, setDlg] = useState<"edit" | "extra" | null>(null);
+  const ud = useUserData();
   const [toast, setToast] = useState<string | null>(null);
   const importMode = useRef<"merge" | "new">("merge");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -55,6 +62,7 @@ export function App() {
 
   useEffect(() => {
     initCollections();
+    initUserData();
     restoreImageFolder();
     loadCatalog().then(setCat, (e) => setErr(String(e)));
   }, []);
@@ -67,7 +75,7 @@ export function App() {
 
   const filtered = useMemo(() => {
     if (!cat) return [] as Note[];
-    let r = cat.notes;
+    let r = applyUserData(cat.notes, cat.countries, ud);
     if (country != null) r = r.filter((n) => n.c === country);
     if (status === "owned") r = r.filter((n) => items[n.key]?.status === "owned");
     else if (status === "wanted") r = r.filter((n) => items[n.key]?.status === "wanted");
@@ -88,7 +96,7 @@ export function App() {
       r.sort(cmp[sort]);
     }
     return r;
-  }, [cat, country, status, q, sort, items]);
+  }, [cat, country, status, q, sort, items, ud]);
 
   useEffect(() => setSel(0), [country, status, q, sort]);
   const note = filtered[Math.min(sel, filtered.length - 1)] ?? null;
@@ -117,7 +125,7 @@ export function App() {
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
-      if (lightbox) return;
+      if (lightbox || dlg) return;
       const t = e.target as HTMLElement;
       if (e.key === "/" && t.tagName !== "INPUT" && t.tagName !== "TEXTAREA") {
         e.preventDefault();
@@ -146,7 +154,7 @@ export function App() {
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
-  }, [lightbox, view, cols, move, filtered.length, note]);
+  }, [dlg, lightbox, view, cols, move, filtered.length, note]);
 
   const doImport = async (f: File) => {
     try {
@@ -323,7 +331,7 @@ export function App() {
 
         {/* Right */}
         <aside className="min-h-0">
-          <DetailPanel note={note} item={note ? items[note.key] : undefined} currency={cols_.currency} onZoom={setLightbox} />
+          <DetailPanel note={note} item={note ? items[note.key] : undefined} currency={cols_.currency} onZoom={setLightbox} onEdit={() => setDlg("edit")} onExtra={() => setDlg("extra")} />
         </aside>
       </div>
 
@@ -339,6 +347,8 @@ export function App() {
         />
       )}
 
+      {dlg === "edit" && note && <EditDialog note={note} onClose={() => setDlg(null)} />}
+      {dlg === "extra" && note && <ExtraDialog note={note} text={ud.extra[note.key] ?? ""} onClose={() => setDlg(null)} />}
       {toast && (
         <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-brass/40 bg-espresso-2 px-4 py-2 font-mono text-[12px] text-brass-2 shadow-2xl animate-in fade-in slide-in-from-bottom-2">
           {toast}
